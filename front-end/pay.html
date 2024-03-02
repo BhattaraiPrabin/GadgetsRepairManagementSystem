@@ -1,0 +1,51 @@
+<html>
+
+<body>
+
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/hmac-sha256.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/enc-base64.min.js"></script>
+
+<script>
+    const date1 = new Date();
+    var txn_uid =
+        date1.getSeconds().toString() + date1.getMilliseconds().toString();
+    let esewamessage = `total_amount=60,transaction_uuid=${txn_uid},product_code=EPAYTEST`;
+    var hash = CryptoJS.HmacSHA256(esewamessage, "8gBm/:&EnhH.1/q");
+    var signature = CryptoJS.enc.Base64.stringify(hash);
+    console.log("test", signature, typeof signature);
+
+    const data = {
+        amount: "50",
+        failure_url: "https://google.com",
+        product_delivery_charge: "0",
+        product_service_charge: "0",
+        product_code: "EPAYTEST",
+        signature,
+        signed_field_names: "total_amount,transaction_uuid,product_code",
+        success_url: "https://esewa.com",
+        tax_amount: "10",
+        total_amount: "60",
+        transaction_uuid: txn_uid,
+    };
+    var path = "https://rc-epay.esewa.com.np/api/epay/main/v2/form";
+
+    var form = document.createElement("form");
+    form.setAttribute("method", "POST");
+    form.setAttribute("action", path);
+
+    for (var key in data) {
+        var hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", key);
+        hiddenField.setAttribute("value", data[key]);
+        form.appendChild(hiddenField);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+
+</script>
+
+</html>

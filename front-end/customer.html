@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Basic Page Info -->
+    <meta charset="utf-8">
+    <title>Repair Shop Management System</title>
+
+    <!-- Mobile Specific Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="vendors/styles/core.css">
+    <link rel="stylesheet" type="text/css" href="vendors/styles/icon-font.min.css">
+    <link rel="stylesheet" type="text/css" href="src/plugins/datatables/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" type="text/css" href="src/plugins/datatables/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" type="text/css" href="vendors/styles/style.css">
+    <style>
+        .review {
+            font-size: 24px;
+            /* Adjust the size of the stars */
+            color: #3c3c3c;
+            /* Default star color */
+        }
+
+        .star.selected,
+        .star:hover {
+            color: #ffac05;
+            /* Color when the star is selected or hovered */
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="menu-icon dw dw-menu"></div>
+        </div>
+        <div class="header-right">
+            <div class="user-info-dropdown">
+                <div class="dropdown">
+                    <a href="#" class="user-profile">
+                        <span class="user-icon">
+                            <img id="profileImage" src="src/images/admin.png" width="50">
+                        </span>
+                        <!-- <span id="userName" class="user-name">John Doe</span> -->
+                        <span id="fullName"> You </span>
+
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                        <a class="dropdown-item" href="#"><i class="dw dw-user1"></i> Profile</a>
+                        <a class="dropdown-item" href="#"><i class="dw dw-settings2"></i> Setting</a>
+                        <hr>
+                        <a class="dropdown-item" href="login.html"><i class="dw dw-logout"></i> Log Out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="left-side-bar">
+        <div class="menu-block customscroll">
+            <div class="sidebar-menu">
+                <ul id="accordion-menu">
+                    <li>
+                        <a href="#" class="dropdown-toggle no-arrow">
+                            <span class="micon dw dw-house"></span><span class="mtext">Customer Dashboard</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="main-container">
+        <div class="pd-ltr-20 xs-pd-20-10">
+            <div class="min-height-200px">
+                <div class="page-header">
+                    <div class="row">
+                        <div class="col-md-6 col-sm-12">
+                            <div class="title">
+                                <h4><i class="micon dw dw-shopping-basket mtext"></i> Work Order</h4>
+                            </div>
+                            <nav aria-label="breadcrumb" role="navigation">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Work Order</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-box mb-30">
+                    <div class="pd-20">
+                        <h4 class="text-blue h4">Work Progress List</h4>
+                    </div>
+                    <div class="pb-20">
+                        <table class="data-table table responsive">
+                            <thead>
+                                <tr>
+                                    <th>Gadget Details</th>
+                                    <th>Issue Details</th>
+                                    <th>Your Review </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <strong>Details:</strong> <span id="gadgetDetails"></span><br>
+                                        <strong>Brand:</strong> <span id="gadgetBrand"></span><br>
+                                        <strong>Model:</strong> <span id="gadgetModel"></span><br>
+                                        <strong>Serial No:</strong> <span id="gadgetSerialNo"></span><br>
+                                    </td>
+                                    <td>
+                                        <strong>Description:</strong> <span id="issueDescription"></span><br>
+                                        <strong>Priority:</strong> <span id="issuePriority"></span><br>
+                                        <strong>Repair Status:</strong> <span id="issueRepairStatus"></span><br>
+                                        <button type="submit" i="payNow" class="btn btn-success" onclick="payNow()">PAY</button>
+                                    </td>
+                                    <td>
+                                        <div class="card" id="feedbackCard">
+                                            <div class="card-body">
+                                                <button type="button" class="btn btn-primary" data-toggle="modal"
+                                                    data-target="#reviewModal">Write Review</button>
+                                            </div>
+                                        </div>
+                                        <div class="card mt-2" id="feedbackDisplay" style="display:none;">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Thank you for your feedback!</h5>
+                                                <p id="submittedReview"></p>
+                                                <p id="submittedRating"></p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+
+
+                <!-- Display submitted feedback -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for writing a review -->
+    <div class="modal fade" id="reviewModal" tabindex="-1" role="dialog" aria-labelledby="reviewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reviewModalLabel">Write a Review</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="reviewForm">
+                        <div class="form-group">
+                            <label for="reviewText">Your Review:</label>
+                            <textarea class="form-control" id="reviewText" rows="4" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="review">Rate Our Service:</label>
+                            <div id="review" class="review">
+                                <span class="star" data-review="1">&#9733;</span>
+                                <span class="star" data-review="2">&#9733;</span>
+                                <span class="star" data-review="3">&#9733;</span>
+                                <span class="star" data-review="4">&#9733;</span>
+                                <span class="star" data-review="5">&#9733;</span>
+                            </div>
+                            <input type="hidden" name="review" id="selectedreview" required>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="submitreview()">Submit
+                            Review</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    </div>
+    </div>
+    <!-- Payment Modal -->
+    <script>
+        let selectedreview = 0;
+        let isSubmitted = false;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const stars = document.querySelectorAll('.star');
+            stars.forEach(function (star) {
+                star.addEventListener('click', function () {
+                    if (!isSubmitted) {
+                        selectedreview = this.getAttribute('data-review');
+                        document.getElementById('selectedreview').value = selectedreview;
+                        stars.forEach(function (s) {
+                            s.classList.remove('selected');
+                        });
+                        for (let i = 1; i <= selectedreview; i++) {
+                            document.querySelector(`.star[data-review="${i}"]`).classList.add('selected');
+                        }
+                    }
+                });
+
+                star.addEventListener('mouseover', function () {
+                    if (!isSubmitted) {
+                        const review = this.getAttribute('data-review');
+                        stars.forEach(function (s) {
+                            s.classList.remove('selected');
+                        });
+                        for (let i = 1; i <= review; i++) {
+                            document.querySelector(`.star[data-review="${i}"]`).classList.add('selected');
+                        }
+                    }
+                });
+
+                star.addEventListener('mouseout', function () {
+                    if (!isSubmitted) {
+                        stars.forEach(function (s) {
+                            s.classList.remove('selected');
+                        });
+                        for (let i = 1; i <= selectedreview; i++) {
+                            document.querySelector(`.star[data-review="${i}"]`).classList.add('selected');
+                        }
+                    }
+                });
+            });
+        });
+
+        function submitreview() {
+            if (isSubmitted) {
+                return;
+            }
+
+            const reviewText = document.getElementById('reviewText').value;
+
+            // Check if a review is selected
+            if (selectedreview === 0) {
+                alert('Please select a review.');
+                return;
+            }
+
+            // Simulate asynchronous submission to a server (replace with your actual submission logic)
+            setTimeout(function () {
+                // Display submitted feedback
+                document.getElementById('submittedReview').textContent = 'Review: ' + reviewText;
+                document.getElementById('submittedRating').textContent = 'Rating: ' + selectedreview;
+                document.getElementById('feedbackCard').style.display = 'none';
+                document.getElementById('feedbackDisplay').style.display = 'block';
+                isSubmitted = true;
+                // Close the modal after submission
+                document.getElementById('reviewModal').classList.remove('show');
+                document.getElementById('reviewModal').style.display = 'none';
+                document.querySelector('.modal-backdrop').remove();
+            }, 1000); // Simulating a delay, replace with actual server call time
+        }
+    </script>
+
+    <!-- js -->
+    <script src="vendors/scripts/core.js"></script>
+    <script src="vendors/scripts/script.min.js"></script>
+    <script src="vendors/scripts/process.js"></script>
+    <script src="vendors/scripts/layout-settings.js"></script>
+    <script src="src/plugins/apexcharts/apexcharts.min.js"></script>
+    <script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+    <script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+    <script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+
+    <script src="vendors/scripts/dashboard3.js"></script>
+    <!-- Include CryptoJS library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/hmac-sha256.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/enc-base64.min.js"></script>
+    <script src="./resreq/customerfeedback.js"></script>
+    <script src="./resreq/pay.js"></script>
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get the user information from Local Storage
+            const token = localStorage.getItem('token');
+            const fullName = localStorage.getItem('fullName');
+            const name = localStorage.getItem('name');
+            const userId = localStorage.getItem('userId');
+
+            // Update the user information on the page
+            const fullNameElement = document.getElementById('fullName');
+            const userIdElement = document.getElementById('userId');
+
+            if (fullNameElement) {
+                fullNameElement.textContent = fullName || "Default Full Name";
+            }
+
+            if (nameElement) {
+                nameElement.textContent = name || "Default Name";
+            }
+
+            if (userIdElement) {
+                userIdElement.textContent = userId || "Default User ID";
+            }
+        });
+    </script>
+
+
+    <script>
+        // Load data from local storage
+        const gadgetDetails = JSON.parse(localStorage.getItem('gadgetDetails'));
+        const issueDetails = JSON.parse(localStorage.getItem('issueDetails'));
+
+        // Display data in the HTML
+        document.getElementById('gadgetDetails').textContent = gadgetDetails.details || '';
+        document.getElementById('gadgetBrand').textContent = gadgetDetails.brand || '';
+        document.getElementById('gadgetModel').textContent = gadgetDetails.model || '';
+        document.getElementById('gadgetSerialNo').textContent = gadgetDetails.serialNo || '';
+
+        document.getElementById('issueDescription').textContent = issueDetails.description || '';
+        document.getElementById('issuePriority').textContent = issueDetails.priority || '';
+        document.getElementById('issueRepairStatus').textContent = issueDetails.repairStatus || '';
+        document.getElementById('issueId').textContent = issueDetails.IssueId || '';
+    </script>
+
+    <!-- ... Your existing HTML ... -->
+
+    <script>
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const stars = document.querySelectorAll('.star');
+            stars.forEach(function (star) {
+                star.addEventListener('click', function () {
+                    if (!isSubmitted) {
+                        selectedreview = this.getAttribute('data-review');
+                        document.getElementById('selectedreview').value = selectedreview;
+                        stars.forEach(function (s) {
+                            s.classList.remove('selected');
+                        });
+                        for (let i = 1; i <= selectedreview; i++) {
+                            document.querySelector(`.star[data-review="${i}"]`).classList.add('selected');
+                        }
+                    }
+                });
+
+                star.addEventListener('mouseover', function () {
+                    if (!isSubmitted) {
+                        const review = this.getAttribute('data-review');
+                        stars.forEach(function (s) {
+                            s.classList.remove('selected');
+                        });
+                        for (let i = 1; i <= review; i++) {
+                            document.querySelector(`.star[data-review="${i}"]`).classList.add('selected');
+                        }
+                    }
+                });
+
+                star.addEventListener('mouseout', function () {
+                    if (!isSubmitted) {
+                        stars.forEach(function (s) {
+                            s.classList.remove('selected');
+                        });
+                        for (let i = 1; i <= selectedreview; i++) {
+                            document.querySelector(`.star[data-review="${i}"]`).classList.add('selected');
+                        }
+                    }
+                });
+            });
+        });
+
+        function submitReview() {
+            if (isSubmitted) {
+                return;
+            }
+
+            const reviewText = document.getElementById('reviewText').value;
+
+            // Check if a review is selected
+            if (selectedreview === 0) {
+                alert('Please select a review.');
+                return;
+            }
+
+            // Get the issue ID from the table row
+            const issueId = getIssueId();
+
+            // Check if the issue ID is available
+            if (!issueId) {
+                alert('Issue ID not found.');
+                return;
+            }
+
+            const feedbackData = {
+                review: reviewText,
+                rating: selectedreview
+            };
+
+            // Simulate asynchronous submission to a server (replace with your actual submission logic)
+            fetch(`http://localhost:4000/issue/${issueId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(feedbackData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    document.getElementById('submittedReview').textContent = 'Review: ' + reviewText;
+                    document.getElementById('submittedRating').textContent = 'Rating: ' + selectedreview;
+                    document.getElementById('feedbackCard').style.display = 'none';
+                    document.getElementById('feedbackDisplay').style.display = 'block';
+                    isSubmitted = true;
+                    document.getElementById('reviewModal').classList.remove('show');
+                    document.getElementById('reviewModal').style.display = 'none';
+                    document.querySelector('.modal-backdrop').remove();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while submitting the review.');
+                });
+        }
+
+        function getIssueId() {
+            // Adjust this function based on the actual structure of your table
+            const table = document.querySelector('.data-table');
+            const row = table.querySelector('tr.selected'); // Assuming you have a way to mark the selected row
+            const issueIdCell = row.querySelector('.issue-id'); // Assuming issue ID is in a cell with the class "issue-id"
+
+            return issueIdCell ? issueIdCell.textContent.trim() : null;
+        }
+    </script>
+
+
+
+</body>
+
+</html>

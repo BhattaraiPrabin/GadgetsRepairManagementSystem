@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Order List</title>
+    <!-- Add your CSS stylesheets and other dependencies here -->
+</head>
+
+<body>
+    <div class="card-box mb-30">
+        <div class="pd-20">
+            <h4 class="text-blue h4">Work Order List</h4>
+        </div>
+        <div class="pb-20">
+            <table class="table responsive">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Request</th>
+                        <th>Service Name</th>
+                        <th>Amount</th>
+                        <th>Customer</th>
+                        <th>Technician</th>
+                        <th>Completion Date</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="workOrderTableBody">
+                    <!-- Fetched data will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add your JavaScript dependencies and other scripts here -->
+    <!-- Ensure you have the necessary Bootstrap and other libraries included -->
+
+    <script>
+        // Function to create a new row for the table
+        function createTableRow(issueDetails) {
+            const row = document.createElement('tr');
+            row.dataset.issueId = issueDetails.issue.id;
+            row.innerHTML = `
+                <td>${issueDetails.issue.description}</td>
+                <td>${issueDetails.issue.requestDate}</td>
+                <td>${issueDetails.gadget.details}</td>
+                <td>${issueDetails.issue.amount}</td>
+                <td>${issueDetails.user.fullName}</td>
+                <td>${issueDetails.user.technician}</td>
+                <td>${issueDetails.issue.completionDate}</td>
+                <td>
+                    <select class="form-select" onchange="updateStatus(this, '${issueDetails.issue.id}', this.value)">
+                        <option value="registered" ${issueDetails.issue.status === 'registered' ? 'selected' : ''}>Registered</option>
+                        <option value="openCase" ${issueDetails.issue.status === 'openCase' ? 'selected' : ''}>Open Case</option>
+                        <option value="progress" ${issueDetails.issue.status === 'progress' ? 'selected' : ''}>In Progress</option>
+                        <option value="readyToClose" ${issueDetails.issue.status === 'readyToClose' ? 'selected' : ''}>Ready to Close</option>
+                        <option value="closed" ${issueDetails.issue.status === 'closed' ? 'selected' : ''}>Closed</option>
+                    </select>
+                </td>
+                <td>
+                    <button class="btn btn-primary" onclick="submitStatus('${issueDetails.issue.id}', this.parentElement.parentElement)">Submit</button>
+                </td>
+            `;
+            return row;
+        }
+
+        // Add this function to handle status updates
+        function updateStatus(selectElement, issueId, newStatus) {
+            // Update the status locally (optional)
+            const statusCell = selectElement.closest('tr').querySelector('td:nth-child(8)');
+            statusCell.innerHTML = newStatus;
+        }
+
+        // Add this function to submit status changes to the backend
+        function submitStatus(issueId, rowElement) {
+            // Get the selected status from the dropdown
+            const statusSelect = rowElement.querySelector('select');
+            const newStatus = statusSelect.value;
+
+            // Send the updated status to the backend (you need to implement this)
+            // ...
+
+            // Display an alert for status change
+            alert(`Status changed to: ${newStatus}`);
+
+            // Disable the dropdown to prevent resubmission
+            statusSelect.disabled = true;
+        }
+
+        // Fetch issues from the backend API
+        fetch('http://localhost:4000/api/issues')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const workOrderTableBody = document.getElementById('workOrderTableBody');
+
+                // Clear existing rows from the table body
+                workOrderTableBody.innerHTML = '';
+
+                // Iterate through the fetched data and create new rows
+                data.forEach(issueDetails => {
+                    const row = createTableRow(issueDetails);
+                    workOrderTableBody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Fetch error:', error);
+                // Handle the error, e.g., show an error message to the user
+            });
+    </script>
+
+</body>
+
+</html>

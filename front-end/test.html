@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>eSewa Payment Form</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+
+<body>
+    <a href="test.html" target="_blank">test</a>
+    <div style="border: 1px green solid; padding: 20px">
+        Input Message:
+        <input type="text" id="inputMessage" value="total_amount=115,transaction_uuid=123-456-789,product_code=EPAYTEST"
+            size="80" />
+        <br />
+        <button type="submit" onclick="generateHash()">Generate Hash</button>
+    </div>
+    <div style="border: 1px red solid; padding: 20px">
+        Message used: <span id="msg"></span>
+        <br /> Hash: <span id="hash"></span>
+    </div>
+    <form action="https://rc-epay.esewa.com.np/api/epay/main/v2/form" method="POST">
+        <div class="form-group">
+            <label for="amount">Amount</label>
+            <input type="text" class="form-control" id="amount" name="amount" value="105" required />
+        </div>
+        <div class="form-group">
+            <label for="tax_amount">Tax Amount</label>
+            <input type="text" class="form-control" id="tax_amount" name="tax_amount" value="10" required />
+        </div>
+        <div class="form-group">
+            <label for="total_amount">Total Amount</label>
+            <input type="text" class="form-control" id="total_amount" name="total_amount" value="115" required />
+        </div>
+        <div class="form-group">
+            <label for="transaction_uuid">Transaction_uuid</label>
+            <input type="text" class="form-control" id="transaction_uuid" name="transaction_uuid" value="123-456-789"
+                required />
+        </div>
+        <div class="form-group" style="background-color: green">
+            <label for="product_code">Product Code</label>
+            <input type="text" class="form-control" id="product_code" name="product_code" value="EPAYTEST" required />
+        </div>
+        <div class="form-group">
+            <label for="product_service_charge">Product Service Charge</label>
+            <input type="text" class="form-control" id="product_service_charge" name="product_service_charge" value="0"
+                required />
+        </div>
+        <div class="form-group">
+            <label for="product_delivery_charge">Product Delivery Charge</label>
+            <input type="text" class="form-control" id="product_delivery_charge" name="product_delivery_charge"
+                value="0" required />
+        </div>
+        <div class="form-group">
+            <label for="success_url">Success Url</label>
+            <input type="text" class="form-control" id="success_url" name="success_url" value="https://esewa.com.np"
+                required />
+        </div>
+        <div class="form-group">
+            <label for="failure_url">Failure Url</label>
+            <input type="text" class="form-control" id="failure_url" name="failure_url" value="https://google.com"
+                required />
+        </div>
+        <div class="form-group">
+            <label for="signed_field_names">Signed Field Names</label>
+            <input type="text" class="form-control" id="signed_field_names" name="signed_field_names"
+                value="total_amount,transaction_uuid,product_code" size="50" required />
+        </div>
+        <div class="form-group">
+            <label for="signature">Signature</label>
+            <input type="text" class="form-control" id="signature" name="signature" value="" required size="50" />
+        </div>
+        <input value="Submit" type="submit" class="btn btn-primary" />
+    </form>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/hmac-sha256.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/enc-base64.min.js"></script>
+    <script>
+        function generateHash() {
+            var message = document.getElementById("inputMessage").value;
+            var hash = CryptoJS.HmacSHA256(message, "8gBm/:&EnhH.1/q");
+            console.log("hash", hash);
+            var hashInBase64 = CryptoJS.enc.Base64.stringify(hash);
+            document.getElementById("msg").innerHTML = message;
+            document.getElementById("hash").innerHTML = hashInBase64;
+        }
+    </script>
+</body>
+
+
+<script>
+    const date1 = new Date();
+    var txn_uid =
+        date1.getSeconds().toString() + date1.getMilliseconds().toString();
+    let esewamessage = `total_amount=60,transaction_uuid=${txn_uid},product_code=EPAYTEST`;
+    var hash = CryptoJS.HmacSHA256(esewamessage, "8gBm/:&EnhH.1/q");
+    var signature = CryptoJS.enc.Base64.stringify(hash);
+    console.log("test", signature, typeof signature);
+
+    const data = {
+        amount: "50",
+        failure_url: "https://google.com",
+        product_delivery_charge: "0",
+        product_service_charge: "0",
+        product_code: "EPAYTEST",
+        signature,
+        signed_field_names: "total_amount,transaction_uuid,product_code",
+        success_url: "https://esewa.com",
+        tax_amount: "10",
+        total_amount: "60",
+        transaction_uuid: txn_uid,
+    };
+    var path = "https://rc-epay.esewa.com.np/api/epay/main/v2/form";
+
+    var form = document.createElement("form");
+    form.setAttribute("method", "POST");
+    form.setAttribute("action", path);
+
+    for (var key in data) {
+        var hiddenField = document.createElement("input");
+        hiddenField.setAttribute("type", "hidden");
+        hiddenField.setAttribute("name", key);
+        hiddenField.setAttribute("value", data[key]);
+        form.appendChild(hiddenField);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+
+</script>
+
+</html>
